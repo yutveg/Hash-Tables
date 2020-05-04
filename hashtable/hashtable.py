@@ -9,6 +9,7 @@ class HashTableEntry:
         self.next = None
 
 
+
 class HashTable:
     """
     A hash table that with `capacity` buckets
@@ -16,6 +17,10 @@ class HashTable:
 
     Implement this.
     """
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.size = 0
+        self.storage = [None] * capacity
 
     def fnv1(self, key):
         """
@@ -23,6 +28,19 @@ class HashTable:
 
         Implement this, and/or DJB2.
         """
+        str_bytes = str(key).encode()
+        FNV_offset_basis = 14695981039346656037
+        FNV_prime = 1099511628211
+        hash = FNV_offset_basis
+        for byte_of_data in str_bytes:
+            hash = hash * FNV_prime
+            hash = hash ^ byte_of_data
+        
+        hash &= 0xffffffffffffffff
+        print("printed hash", hash)
+        return hash
+            
+
 
     def djb2(self, key):
         """
@@ -36,8 +54,8 @@ class HashTable:
         Take an arbitrary key and return a valid integer index
         between within the storage capacity of the hash table.
         """
-        #return self.fnv1(key) % self.capacity
-        return self.djb2(key) % self.capacity
+        return self.fnv1(key) % self.capacity
+        # return self.djb2(key) % self.capacity
 
     def put(self, key, value):
         """
@@ -47,6 +65,13 @@ class HashTable:
 
         Implement this.
         """
+        if self.size == self.capacity:
+            return
+        index = self.hash_index(key)
+        self.storage[index] = value
+        self.size += 1
+
+        
 
     def delete(self, key):
         """
@@ -56,6 +81,11 @@ class HashTable:
 
         Implement this.
         """
+        if self.size == 0:
+            return
+        index = self.hash_index(key)
+        self.storage[index] = None
+        self.size -= 1
 
     def get(self, key):
         """
@@ -65,6 +95,10 @@ class HashTable:
 
         Implement this.
         """
+        if self.size == 0:
+            return None
+        index = self.hash_index(key)
+        return self.storage[index]
 
     def resize(self):
         """
