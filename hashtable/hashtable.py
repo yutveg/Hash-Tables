@@ -37,7 +37,6 @@ class HashTable:
             hash = hash ^ byte_of_data
         
         hash &= 0xffffffffffffffff
-        print("printed hash", hash)
         return hash
             
 
@@ -48,6 +47,7 @@ class HashTable:
 
         Implement this, and/or FNV-1.
         """
+
 
     def hash_index(self, key):
         """
@@ -68,7 +68,7 @@ class HashTable:
         if self.size == self.capacity:
             return
         index = self.hash_index(key)
-        self.storage[index] = value
+        self.storage[index] = (key, value)
         self.size += 1
 
         
@@ -98,7 +98,7 @@ class HashTable:
         if self.size == 0:
             return None
         index = self.hash_index(key)
-        return self.storage[index]
+        return self.storage[index][1]
 
     def resize(self):
         """
@@ -107,6 +107,19 @@ class HashTable:
 
         Implement this.
         """
+        list_to_merge = [None] * self.capacity
+        self.storage = list_to_merge + self.storage
+        self.capacity = self.capacity * 2
+        for index in range(self.size):
+            item = self.storage[index]
+            if item != None:
+                # set the spot in storage to None
+                self.storage[index] = None
+                # rehash item and insert
+                self.put(item[0], item[1])
+        
+        
+
 
 if __name__ == "__main__":
     ht = HashTable(2)
