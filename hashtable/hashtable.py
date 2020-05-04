@@ -108,11 +108,13 @@ class HashTable:
         Implement this.
         """
         list_to_merge = [None] * self.capacity
-        self.storage = list_to_merge + self.storage
+        self.storage = self.storage + list_to_merge 
         self.capacity = self.capacity * 2
-        for index in range(self.size):
+        print(self.capacity)
+        for index in range(self.capacity):
             item = self.storage[index]
             if item != None:
+                print(item)
                 # set the spot in storage to None
                 self.storage[index] = None
                 # rehash item and insert
