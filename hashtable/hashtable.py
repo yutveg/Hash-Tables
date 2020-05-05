@@ -35,8 +35,8 @@ class HashTable:
         for byte_of_data in str_bytes:
             hash = hash * FNV_prime
             hash = hash ^ byte_of_data
+            hash &= 0xffffffffffffffff
         
-        hash &= 0xffffffffffffffff
         return hash
             
 
@@ -65,11 +65,35 @@ class HashTable:
 
         Implement this.
         """
-        if self.size == self.capacity:
-            return
+        # create a node with our desired key and value
+        new_entry = HashTableEntry(key, value)
+
+        # create index to insert node
         index = self.hash_index(key)
-        self.storage[index] = (key, value)
-        self.size += 1
+
+        # if index is empty add node directly on index
+        if self.storage[index] is None:
+            print("hit none if")
+            self.size += 1
+            self.storage[index] = new_entry
+
+        # if index is taken iterate through node-chain until we hit either None or an existing entry with same key to update
+        else:
+            cur_node = self.storage[index]
+            while cur_node:
+                
+                # hit existing key entry
+                if cur_node.key == new_entry.key:
+                    print(f"{cur_node.key} changing value from {cur_node.value} to {new_entry.value}")
+                    cur_node.value = new_entry.value
+                    break
+                # else, found empty spot
+                if cur_node.next is None:
+                    cur_node.next = new_entry
+
+                cur_node = cur_node.next
+
+        
 
         
 
@@ -83,9 +107,41 @@ class HashTable:
         """
         if self.size == 0:
             return
+
         index = self.hash_index(key)
-        self.storage[index] = None
-        self.size -= 1
+
+        if self.storage[index] is None:
+            print("Key not found.")
+            return
+        # if we find key as first index, set current slot to reference next node aka None
+        elif self.storage[index].key == key:
+            if self.storage[index].next is None:
+                self.size -= 1
+            self.storage[index] = self.storage[index].next
+            return
+        # if slot taken and not our key, iterate through
+        elif self.storage[index].key != key:
+            # if only one node and not our key, key does not exist in chain
+            if self.storage[index].next is None:
+                print("Key not found.")
+                return
+            # iterate through chain
+            prev_node = None
+            cur_node = self.storage[index]
+            while cur_node:
+                # if we find key
+                if cur_node.key == key:
+                    # set previous node next to equal next node (possibly None)
+                    # set current node to equal next node (possibly None) so it loses reference
+                    prev_node.next = cur_node.next
+                    self.storage[index] = cur_node.next
+                    return
+
+                prev_node = cur_node
+                cur_node = cur_node.next
+            print("Key not found.")
+            return
+        
 
     def get(self, key):
         """
@@ -98,7 +154,21 @@ class HashTable:
         if self.size == 0:
             return None
         index = self.hash_index(key)
-        return self.storage[index][1]
+        if self.storage[index] is None:
+            return None
+        elif self.storage[index].key != key:
+            cur_node = self.storage[index]
+            while cur_node:
+                if cur_node.key == key:
+                    print(f"get key: {key} and value: {cur_node.value}")
+                    return cur_node.value
+                cur_node = cur_node.next
+            # no key = return None
+            return None
+        # if we found key, return value
+        else:
+            print(f"get key: {key} and value: {self.storage[index].value}")
+            return self.storage[index].value
 
     def resize(self):
         """
@@ -110,15 +180,12 @@ class HashTable:
         list_to_merge = [None] * self.capacity
         self.storage = self.storage + list_to_merge 
         self.capacity = self.capacity * 2
-        print(self.capacity)
         for index in range(self.capacity):
             item = self.storage[index]
             if item != None:
-                print(item)
-                # set the spot in storage to None
-                self.storage[index] = None
-                # rehash item and insert
-                self.put(item[0], item[1])
+                # we have hit a node
+                pass
+                
         
         
 

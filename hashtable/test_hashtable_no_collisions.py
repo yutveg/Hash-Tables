@@ -32,6 +32,7 @@ class TestHashTable(unittest.TestCase):
         ht.put("key-2", "val-2")
 
         ht.put("key-0", "new-val-0")
+        ht.put("test_wow", "here's something")
         ht.put("key-1", "new-val-1")
         ht.put("key-2", "new-val-2")
 
