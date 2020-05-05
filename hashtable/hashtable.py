@@ -153,9 +153,12 @@ class HashTable:
         """
         if self.size == 0:
             return None
+
         index = self.hash_index(key)
+
         if self.storage[index] is None:
             return None
+
         elif self.storage[index].key != key:
             cur_node = self.storage[index]
             while cur_node:
@@ -184,7 +187,11 @@ class HashTable:
             item = self.storage[index]
             if item != None:
                 # we have hit a node
-                pass
+                cur_node = self.storage[index]
+                while cur_node:
+                    self.delete(self.storage[index])
+                    self.put(cur_node.key, cur_node.value)
+                    cur_node = cur_node.next
                 
         
         
