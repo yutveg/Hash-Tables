@@ -1,6 +1,19 @@
 def no_dups(s):
     # Implement me.
+    word_dict = {}
+    sentence = s.split()
+    for word in sentence:
+        if word in word_dict:
+            pass
+        else:
+            word_dict[word] = 1
 
+    list_string = []
+    for key in word_dict:
+        list_string.append(key)
+    
+    final_string = " ".join(list_string)
+    return final_string
 
 if __name__ == "__main__":
     print(no_dups(""))
