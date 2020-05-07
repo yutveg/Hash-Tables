@@ -33,10 +33,10 @@ class HashTable:
         FNV_prime = 1099511628211
         hash = FNV_offset_basis
         for byte_of_data in str_bytes:
-            hash = hash * FNV_prime
             hash = hash ^ byte_of_data
+            hash = hash * FNV_prime
             hash &= 0xffffffffffffffff
-        
+
         return hash
             
 
@@ -70,12 +70,14 @@ class HashTable:
 
         # create index to insert node
         index = self.hash_index(key)
-
+        print(index)
         # if index is empty add node directly on index
         if self.storage[index] is None:
-            print("hit none if")
-            self.size += 1
             self.storage[index] = new_entry
+            self.size += 1
+            # if item count is greater than or equal to 70% of capacity, increase table size
+            if self.size >= self.capacity * 0.7:
+                self.resize()
 
         # if index is taken iterate through node-chain until we hit either None or an existing entry with same key to update
         else:
@@ -117,6 +119,9 @@ class HashTable:
         elif self.storage[index].key == key:
             if self.storage[index].next is None:
                 self.size -= 1
+                # if item count is less than or equal to 1/5 of capacity, reduce size of table
+                if self.size <= self.capacity // 5:
+                    self.resize_less()
             self.storage[index] = self.storage[index].next
             return
         # if slot taken and not our key, iterate through
@@ -163,14 +168,12 @@ class HashTable:
             cur_node = self.storage[index]
             while cur_node:
                 if cur_node.key == key:
-                    print(f"get key: {key} and value: {cur_node.value}")
                     return cur_node.value
                 cur_node = cur_node.next
             # no key = return None
             return None
         # if we found key, return value
         else:
-            print(f"get key: {key} and value: {self.storage[index].value}")
             return self.storage[index].value
 
     def resize(self):
@@ -192,7 +195,27 @@ class HashTable:
                     self.delete(self.storage[index])
                     self.put(cur_node.key, cur_node.value)
                     cur_node = cur_node.next
-                
+
+    def resize_less(self):
+        """
+        Halves the capacity of the hash table and
+        rehash all key/value pairs.
+
+        Implement this.
+        """
+        prior_list = self.storage
+        self.capacity = int(self.capacity / 2) if self.capacity / 2 >= 8 else 8
+        self.storage = [None] * self.capacity
+        for index in range(len(prior_list)):
+            item = prior_list[index]
+            if item != None:
+                # we have hit a node
+                cur_node = prior_list[index]
+                while cur_node:
+                    self.put(cur_node.key, cur_node.value)
+                    cur_node = cur_node.next
+
+        
         
         
 
